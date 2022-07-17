@@ -7,37 +7,20 @@
 #include "UART_interface.h"
 #include "ADC_interface.h"
 
-
 #define CHANNEL_NUMBER						9
 
 /* Normal Value */
-#define POT1	100
-#define POT2	100
-#define POT3	100
-#define POT4	100
-#define POT5	100
-#define POT6	100
+#define POT1	30
+#define POT2	30
+#define POT3	30
+#define POT4	30
+#define POT5	30
+#define POT6	980
+
 
 /* X Y Z POSITIONS */
-
-/* if x > 500 negative  ,  x < 500 positive */
-#define   X_NORMAL        385
-
-/* if y > 500 negative  ,  y < 500 positive */
-#define   Y_NORMAL        568
-
-/* if  z > 500 negative  ,  z < 500 positive */
-#define   Z_NORMAL        500
-
-/* IN RANGE */
-#define    X_POSITVE     385
-#define    X_NEGATIVE    585
-
-#define    Y_POSITVE     390
-#define    Y_NEGATIVE    590
-
-#define   Z_POSITVE      390
-#define   Z_NEGATIVE     590
+#define    MAX_POSITVE     400
+#define    MIN_NEGATIVE    530
 
 /* Choose Channel number of ADC PINS (0,1,2,3,4,5,6,7,8,9) */
 u8 adc_channels[CHANNEL_NUMBER] = {0,1,3,4,5,6,7,8,9};
@@ -124,80 +107,68 @@ void SendMessage(void)
 	ADC1_voidMultiChannel_RX(channels , adc_channels , analog_rx);
 
 	/* sabah */
-	/*  F1 C                    ,F2 C                    ,F3 O                    ,F4 O                     ,F5  O                  ,REST O                   ,X IN RANGE                                                   ,Y  Negative                   ,Z IN RANGE                                                  */
-	if((analog_rx[0] > POT1) && (analog_rx[1] > POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] < POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) ) && (analog_rx[7] > Y_NORMAL) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)) )
+	/*  F1 C                    ,F2 C                    ,F3 O                    ,F4 O                     ,F5  O                  ,REST O                  ,Y  Negative                */
+	if((analog_rx[0] > POT1) && (analog_rx[1] > POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] > POT6) && (analog_rx[7] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('a');
 	}
 
-	/* MEM */
-	/*  F1 C                    ,F2 C                     ,F3 C                    ,F4  C                    ,F5 O                     ,REST O                    ,X IN RANGE                                                   ,Y  Negative                   ,Z IN RANGE                                                  */
-	else if((analog_rx[0] > POT1) && (analog_rx[1] > POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] < POT5) && (analog_rx[5] > POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) ) && (analog_rx[7] > Y_NORMAL) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)) )
+	/* elkhair */
+	/*  F1 O                    ,F2 O                     ,F3 O                    ,F4 C                     ,F5  C                  ,REST O                      ,Y  Negative               */
+	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[7] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('b');
 	}
 
-	/* RAA */
-	/*  F1 C                    ,F2 O                     ,F3 C                    ,F4  C                    ,F5 C                     ,REST O                    ,X IN RANGE                                                   ,Y  Negative                   ,Z IN RANGE                                                  */
-	else if((analog_rx[0] > POT1) && (analog_rx[1] > POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) ) && (analog_rx[7] > Y_NORMAL) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)) )
+	/*ana*/
+	/*  F1 C                    ,F2 O                     ,F3 C                        ,F4 C                   ,F5 C                     ,REST C                    ,X POSITIVE                */
+	else if((analog_rx[0] > POT1) && (analog_rx[1] < POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] < POT6) && (analog_rx[6] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('c');
 	}
 
 	/* AEIN */
-	/*  F1 C                    ,F2 O                     ,F3 O                    ,F4  C                    ,F5 C                     ,REST O                    ,X Positive                                                   ,Y  IN RANGE                   ,Z IN RANGE                                                  */
-	else if((analog_rx[0] > POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[6] < X_NORMAL) && ((analog_rx[7] < Y_NEGATIVE)  && (analog_rx[7] > Y_POSITVE)) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)) )
+	/*       F1 C                     ,F2 O                    ,F3 O                    ,F4  C                   ,F5 C                    ,REST O                 ,X Positive                 */
+	else if((analog_rx[0] > POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[6] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('d');
 	}
-
-	/* Takol */
-	/*  F1 O                    ,F2 O                     ,F3 C                    ,F4  C                    ,F5 C                     ,REST O                    ,X Positive                                                   ,Y  IN RANGE                   ,Z IN RANGE                                                  */
-	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[6] < X_NORMAL) && ((analog_rx[7] < Y_NEGATIVE)  && (analog_rx[7] > Y_POSITVE)) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)) )
+	/* LADEI */
+	/*       F1 O                    ,F2 C                     ,F3 C                    ,F4 C                   ,F5 C                     ,REST  C                ,X POSITIVE                */
+	else if((analog_rx[0] < POT1) && (analog_rx[1] > POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] < POT6) && (analog_rx[6] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
+		trace_printf("LADEI\n");
 		MUSART2_voidSendChar('e');
 	}
 
-	/* Maza */
-	/*  F1 O                    ,F2 O                     ,F3 O                    ,F4 C                     ,F5  C                  ,REST O                   ,X IN RANGE                                                   ,Y  IN RANGE                                                      ,Z Positive             */
-	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] < POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) )  && ( (analog_rx[7] < Y_NEGATIVE) && (analog_rx[7] > Y_POSITVE) ) && (analog_rx[8] < Z_NORMAL)  )
+	/* EHTBAR */
+	/*       F1 O                     ,F2 O                    ,F3 O                   ,F4 O                    ,F5 O                     ,REST  O                 ,Z Negative                 */
+	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] > POT6) && (analog_rx[8] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('f');
 	}
-	/* tazhab */
-	/*  F1 C                    ,F2 O                     ,F3 C                        ,F4 C                   ,F5 C                     ,REST                    ,X POSITIVE                  ,Y  IN RANGE                                                    ,Z IN RANGE                                                */
-	else if((analog_rx[0] > POT1) && (analog_rx[1] < POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[6] < X_NORMAL) && ((analog_rx[7] < Y_NEGATIVE)  && (analog_rx[7] > Y_POSITVE)) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)))
+
+	/* wdaa3n */
+	/*      F1 O                    ,F2 O                     ,F3 O                    ,F4 O                     ,F5  O                  ,REST O                  ,Y  Negative                */
+	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] > POT6) && (analog_rx[7] > MIN_NEGATIVE))
 	{
 		/* Send Bluetooth Data */
+		trace_printf("wdaa3n\n");
 		MUSART2_voidSendChar('g');
 	}
 
-	/* LADEI */
-	/*       F1 O                    ,F2 C                     ,F3 C                    ,F4 C                     ,F5 C                  ,REST  C                  ,X POSITIVE                  ,Y  IN RANGE                                                    ,Z IN RANGE                                                  */
-	else if((analog_rx[0] < POT1) && (analog_rx[1] > POT2) && (analog_rx[2] > POT3) && (analog_rx[3] > POT4) && (analog_rx[4] > POT5) && (analog_rx[5] > POT6) && (analog_rx[6] < X_NORMAL) && ((analog_rx[7] < Y_NEGATIVE)  && (analog_rx[7] > Y_POSITVE)) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE))  )
-	{/* Send Bluetooth Data */
+	/*Ready To Speak*/
+	/*       F1 O                    ,F2 O                     ,F3 O                    ,F4 O                    ,F5 O                    ,REST O                 ,Y Positive               */
+	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] > POT6) && (analog_rx[7] < MAX_POSITVE))
+	{
+		/* Send Bluetooth Data */
 		MUSART2_voidSendChar('h');
-	}
-
-	/* EHTBAR */
-	/*  F1 O                    ,F2 O                     ,F3 O                    ,F4 O                     ,F5 O                     ,REST  O                  ,X IN RANGE                  ,Y  IN RANGE                                                                                          ,Z Negative          */
-	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] < POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) )  && ( (analog_rx[7] < Y_NEGATIVE) && (analog_rx[7] > Y_POSITVE) ) && (analog_rx[8] > Z_NORMAL))
-	{
-		/* Send Bluetooth Data */
-		MUSART2_voidSendChar('i');
-	}
-	/* Ready To Speak*/
-	/*  F1 O                    ,F2 O                     ,F3 O                    ,F4 O                     ,F5 O                     ,REST O                   ,X IN RANGE                                                      ,Y Positive                                                  ,Z IN RANGE              */
-	else if((analog_rx[0] < POT1) && (analog_rx[1] < POT2) && (analog_rx[2] < POT3) && (analog_rx[3] < POT4) && (analog_rx[4] < POT5) && (analog_rx[5] < POT6) && ( (analog_rx[6] < X_NEGATIVE)&&(analog_rx[6] > X_POSITVE) ) && (analog_rx[7] < Y_NORMAL) && ((analog_rx[8] < Z_NEGATIVE) && (analog_rx[8] > Z_POSITVE)))
-	{
-		/* Send Bluetooth Data */
-		MUSART2_voidSendChar('0');
 	}
 	/* nothing doing */
 	else
